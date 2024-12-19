@@ -26,7 +26,7 @@ const AutoTodo: FC<AutoTodoProps> = ({ initialItems, delay = AUTO_TODO_DELAY }) 
   };
 
   const addItemToList = (item: Item) => {
-    const [list, setList] = getListAndSetterByType(item.type);
+    const [, setList] = getListAndSetterByType(item.type);
 
     setList((prev) => addToList(prev, item));
     setMainList((prev) => filterOutItem(prev, item));
@@ -38,7 +38,7 @@ const AutoTodo: FC<AutoTodoProps> = ({ initialItems, delay = AUTO_TODO_DELAY }) 
   };
 
   const backToMainList = (item: Item) => {
-    const [list, setList] = getListAndSetterByType(item.type);
+    const [, setList] = getListAndSetterByType(item.type);
 
     setMainList((prev) => addToList(prev, item));
     setList((prev) => filterOutItem(prev, item));
