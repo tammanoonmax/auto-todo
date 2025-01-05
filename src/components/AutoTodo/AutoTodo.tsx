@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import { Box, Button, Flex, VStack } from '@chakra-ui/react';
 import { Item, ItemType } from './types';
 import { AUTO_TODO_DELAY } from './constants';
@@ -13,6 +13,7 @@ const AutoTodo: FC<AutoTodoProps> = ({ initialItems, delay = AUTO_TODO_DELAY }) 
   const [mainList, setMainList] = useState<Item[]>(initialItems);
   const [fruitList, setFruitList] = useState<Item[]>([]);
   const [vegetableList, setVegetableList] = useState<Item[]>([]);
+  const timeoutRefs = useRef(new Map());
 
   const getListAndSetterByType = (type: string): [Item[], React.Dispatch<React.SetStateAction<Item[]>>] => {
     switch (type) {
@@ -31,14 +32,23 @@ const AutoTodo: FC<AutoTodoProps> = ({ initialItems, delay = AUTO_TODO_DELAY }) 
     setList((prev) => addToList(prev, item));
     setMainList((prev) => filterOutItem(prev, item));
 
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setMainList((prev) => addToList(prev, item));
       setList((prev) => filterOutItem(prev, item));
+      timeoutRefs.current.delete(item.name); 
     }, delay);
+
+    timeoutRefs.current.set(item.name, timeoutId);
   };
 
   const backToMainList = (item: Item) => {
     const [, setList] = getListAndSetterByType(item.type);
+
+    const timeoutId = timeoutRefs.current.get(item.name);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutRefs.current.delete(item.name);
+    }
 
     setMainList((prev) => addToList(prev, item));
     setList((prev) => filterOutItem(prev, item));
